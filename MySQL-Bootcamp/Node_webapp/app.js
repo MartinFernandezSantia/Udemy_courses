@@ -57,29 +57,25 @@ var connection = mysql.createConnection({
 //     console.log(result);
 // });
 
-var express = require('express');
-var bodyParser = require("body-parser");
+var express = require("express");
 var app = express();
-
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.urlencoded({extended:true}));
+app.use(express.static(__dirname + "/public"));
 
-app.listen(8080, function () {
-    console.log('App listening on port 8080!');
-});
 
+app.listen(8080, function(){
+    console.log("App listening on port 8080");
+})
 
 app.get("/", function(req, res){
-    q = "SELECT COUNT(*) as count FROM users"
-    connection.query(q, function (error, results, fields) {
+    var q = 'SELECT COUNT(*) as count FROM users';
+    connection.query(q, function (error, results) {
         if (error) throw error;
-        var count = results[0].count
-        res.render("home", {count: count});
+        // var msg = "We have " + results[0].count + " users";
+        // res.send(msg);
+        res.render("home", {count: results[0].count})
     });
-});
-
-app.get('/register', function(req,res){
-    res.redirect("/");
 });
 
 app.post('/register', function(req,res){
@@ -90,5 +86,6 @@ app.post('/register', function(req,res){
         res.redirect("/");
     });
 });   
+
 
 
