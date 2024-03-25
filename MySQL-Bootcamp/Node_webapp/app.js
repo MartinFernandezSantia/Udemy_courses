@@ -42,19 +42,53 @@ var connection = mysql.createConnection({
 //////////////////////////////////////////////////////////////////////////////////
 
 // BULK INSERT
-var data = [];
-for(var i = 0; i < 500; i++){
-    data.push([
-        faker.internet.email(),
-        faker.date.past()
-    ]);
-}
+// var data = [];
+// for(var i = 0; i < 500; i++){
+//     data.push([
+//         faker.internet.email(),
+//         faker.date.past()
+//     ]);
+// }
 
-var q = 'INSERT INTO users (email, created_at) VALUES ?';
+// var q = 'INSERT INTO users (email, created_at) VALUES ?';
 
-connection.query(q, [data], function(err, result) {
-    console.log(err);
-    console.log(result);
+// connection.query(q, [data], function(err, result) {
+//     console.log(err);
+//     console.log(result);
+// });
+
+var express = require('express');
+var bodyParser = require("body-parser");
+var app = express();
+
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.listen(8080, function () {
+    console.log('App listening on port 8080!');
 });
 
-connection.end();
+
+app.get("/", function(req, res){
+    q = "SELECT COUNT(*) as count FROM users"
+    connection.query(q, function (error, results, fields) {
+        if (error) throw error;
+        var count = results[0].count
+        res.render("home", {count: count});
+    });
+});
+
+app.get('/register', function(req,res){
+    res.redirect("/");
+});
+
+app.post('/register', function(req,res){
+    var person = {email: req.body.email};
+    connection.query('INSERT INTO users SET ?', person, function(err, result) {
+        console.log(err);
+        console.log(result);
+        res.redirect("/");
+    });
+});   
+
+
